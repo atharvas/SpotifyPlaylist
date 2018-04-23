@@ -1,11 +1,15 @@
 package com.example.spotify_playlist;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.util.AndroidException;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -65,5 +69,19 @@ public class MainActivity extends Activity {
         });
 
 
+    }
+    public void executeProgram(android.view.View playlistCreate) {
+        Toast.makeText(getApplicationContext(), "playlistCreate pressed", Toast.LENGTH_SHORT).show();
+        Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibe != null)
+            vibe.vibrate(40);
+    }
+
+
+    public void executeUAuth(android.view.View playlistCreate) {
+        Toast.makeText(getApplicationContext(), "UAuth pressed", Toast.LENGTH_SHORT).show();
+        Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibe != null)
+            vibe.vibrate(40);
     }
 }

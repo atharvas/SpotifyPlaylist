@@ -8,7 +8,7 @@
     tools:context="com.example.spotify_playlist.MainActivity"
     tools:layout_editor_absoluteY="25dp">
 
-    <pl.droidsonroids.gif.GifImag6eView
+    <pl.droidsonroids.gif.GifImageView
         android:id="@+id/gifImageView"
         android:layout_width="333dp"
         android:layout_height="70dp"
@@ -27,7 +27,7 @@
         android:layout_width="325dp"
         android:layout_height="36dp"
         android:layout_marginBottom="8dp"
-        android:max="24"
+        android:max="23"
         android:progress="0"
         app:layout_constraintBottom_toTopOf="@+id/minuteBar"
         app:layout_constraintEnd_toEndOf="parent"
@@ -40,10 +40,10 @@
         style="@android:style/Widget.DeviceDefault.Light.SeekBar"
         android:layout_width="323dp"
         android:layout_height="36dp"
-        android:layout_marginBottom="168dp"
-        android:max="60"
+        android:layout_marginBottom="8dp"
+        android:max="59"
         android:progress="0"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/gifImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -75,7 +75,7 @@
         android:layout_height="29dp"
         android:contentDescription="CREATE A PLAYLIST FOR"
         android:fontFamily="@font/lato_thin"
-        android:lineSpacingExtra="10sp"
+        android:lineSpacingExtra="12sp"
         android:text="CREATE A PLAYLIST FOR"
         android:textAlignment="center"
         android:textColor="@color/spotify_green"
@@ -185,5 +185,42 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/static_playlistHRS" />
+
+    <Button
+        android:id="@+id/uAuthCreate"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/dotrect"
+        android:backgroundTint="@android:color/transparent"
+        android:contentDescription="uAuth Login"
+        android:fontFamily="@font/lato_thin"
+        android:onClick="executeUAuth"
+        android:text="uAuth Login"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@color/spotify_green"
+        android:textSize="18sp"
+        android:textStyle="italic"
+        android:typeface="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/minuteBar"
+        app:layout_constraintVertical_bias="0.666"
+        tools:text="uAuth Login" />
+
+    <pl.droidsonroids.gif.GifImageView
+        android:id="@+id/gifImage"
+        android:layout_width="246dp"
+        android:layout_height="46dp"
+        android:background="@drawable/dotrect"
+        android:onClick="executeProgram"
+        android:src="@drawable/create"
+        app:layout_constraintBottom_toTopOf="@+id/uAuthCreate"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/minuteBar" />
 
 </android.support.constraint.ConstraintLayout>

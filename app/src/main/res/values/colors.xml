@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="spotify_green">#1db954</color>
+    <color name="spotify_black">#383a3e</color>
 </resources>
