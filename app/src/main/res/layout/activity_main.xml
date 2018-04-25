@@ -192,10 +192,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/dotrect"
-        android:contentDescription="uAuth Login"
+        android:contentDescription="oAuth Login"
         android:fontFamily="@font/lato_thin"
         android:onClick="executeUAuth"
-        android:text="uAuth Login"
+        android:text="oAuth Login"
         android:textAlignment="center"
         android:textAllCaps="false"
         android:textColor="@color/spotify_green"
@@ -208,7 +208,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gifImage"
         app:layout_constraintVertical_bias="0.666"
-        tools:text="uAuth Login" />
+        tools:text="oAuth Login" />
 
     <pl.droidsonroids.gif.GifImageView
         android:id="@+id/gifImage"
