@@ -30,9 +30,7 @@ public class MainActivity extends Activity implements
     private static final String CLIENT_ID = "4712c40461f848f58a65ccd92acba7d2";
 
     // TODO: Replace with your redirect URI//Done
-    private static final String REDIRECT_URI = "http://localhost:8005/callback.html";
-
-    private Player mPlayer;
+    private static final String REDIRECT_URI = "yourcustomprotocol://callback";
 
     private static final int REQUEST_CODE = 1337;
 
@@ -51,23 +49,33 @@ public class MainActivity extends Activity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
+        // Check if result comes from the correct activity
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
-            if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
-                Spotify.getPlayer(playerConfig, this, new SpotifyPlayer.InitializationObserver() {
-                    @Override
-                    public void onInitialized(SpotifyPlayer spotifyPlayer) {
-                        mPlayer = spotifyPlayer;
-                        mPlayer.addConnectionStateCallback(MainActivity.this);
-                        mPlayer.addNotificationCallback(MainActivity.this);
-                    }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
-                    }
-                });
+            switch (response.getType()) {
+                // Response was successful and contains auth token
+                case TOKEN:
+                    // Handle successful response
+                    Toast.makeText(getApplicationContext(), "oAuth successful!", Toast.LENGTH_SHORT).show();
+                    Log.d("MainActivity", response.getAccessToken());
+                    break;
+
+                // Auth flow returned an error
+                case ERROR:
+                    // Handle error response
+                    Toast.makeText(getApplicationContext(), "Trouble Contacting Spotify", Toast.LENGTH_SHORT).show();
+                    Log.d("MainActivity", "Error.");
+
+                    break;
+
+                // Most likely auth flow was cancelled
+                default:
+                    Toast.makeText(getApplicationContext(), "You're already logged in!", Toast.LENGTH_SHORT).show();
+                    Log.d("MainActivity", "Logged in");
+
+                    // Handle other cases
+
             }
         }
     }
@@ -121,7 +129,7 @@ public class MainActivity extends Activity implements
     public void onConnectionMessage(String message) {
         Log.d("MainActivity", "Received connection message: " + message);
     }
-        private void onUpdate() {
+    private void onUpdate() {
         SeekBar getHourSeeker = (SeekBar)findViewById(R.id.hourBar);
         SeekBar getMinuteSeeker = (SeekBar)findViewById(R.id.minuteBar);
         final TextView putHourText = (TextView)findViewById(R.id.dynamic_playlistHRS);
@@ -160,26 +168,28 @@ public class MainActivity extends Activity implements
 
             }
         });
-
-
     }
     public void executeProgram(android.view.View playlistCreate) {
         Toast.makeText(getApplicationContext(), "playlistCreate pressed", Toast.LENGTH_SHORT).show();
         Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibe != null)
+        if (vibe != null) {
             vibe.vibrate(40);
+        }
     }
 
 
     public void executeUAuth(android.view.View playlistCreate) {
         Toast.makeText(getApplicationContext(), "oAuth pressed", Toast.LENGTH_SHORT).show();
         Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (vibe != null)
+        if (vibe != null) {
             vibe.vibrate(40);
+        }
 
         //oAuth Activity
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
         builder.setScopes(new String[]{"user-read-private", "streaming"});
+        builder.setShowDialog(true);
+
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
