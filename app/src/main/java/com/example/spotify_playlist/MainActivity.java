@@ -23,6 +23,8 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import kaaes.spotify.webapi.android.SpotifyApi;
+
 public class MainActivity extends Activity implements
         SpotifyPlayer.NotificationCallback, ConnectionStateCallback
 {
@@ -33,6 +35,8 @@ public class MainActivity extends Activity implements
     private static final String REDIRECT_URI = "yourcustomprotocol://callback";
 
     private static final int REQUEST_CODE = 1337;
+
+    public static String ACCESS_TOKEN = "";
 
 
     @Override
@@ -58,21 +62,22 @@ public class MainActivity extends Activity implements
                 case TOKEN:
                     // Handle successful response
                     Toast.makeText(getApplicationContext(), "oAuth successful!", Toast.LENGTH_SHORT).show();
-                    Log.d("MainActivity", response.getAccessToken());
+                    Log.d("MainActivity", "oAuth successful: " + response.getAccessToken());
+                    ACCESS_TOKEN = response.getAccessToken();
                     break;
 
                 // Auth flow returned an error
                 case ERROR:
                     // Handle error response
-                    Toast.makeText(getApplicationContext(), "Trouble Contacting Spotify", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Trouble Connecting to Servers. Please try again later.", Toast.LENGTH_SHORT).show();
                     Log.d("MainActivity", "Error.");
 
                     break;
 
                 // Most likely auth flow was cancelled
                 default:
-                    Toast.makeText(getApplicationContext(), "You're already logged in!", Toast.LENGTH_SHORT).show();
-                    Log.d("MainActivity", "Logged in");
+                    Toast.makeText(getApplicationContext(), "oAuth failed!", Toast.LENGTH_SHORT).show();
+                    Log.d("MainActivity", "oAuth failed");
 
                     // Handle other cases
 
@@ -175,10 +180,14 @@ public class MainActivity extends Activity implements
         if (vibe != null) {
             vibe.vibrate(40);
         }
+        if (ACCESS_TOKEN.equals("")) {
+            Toast.makeText(getApplicationContext(), "You're not logged in.", Toast.LENGTH_SHORT).show();
+        }
     }
 
 
     public void executeUAuth(android.view.View playlistCreate) {
+
         Toast.makeText(getApplicationContext(), "oAuth pressed", Toast.LENGTH_SHORT).show();
         Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (vibe != null) {
