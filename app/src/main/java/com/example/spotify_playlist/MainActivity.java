@@ -25,13 +25,12 @@ import com.spotify.sdk.android.player.SpotifyPlayer;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 
+//https://goo.gl/eST8wY - Link to github
 public class MainActivity extends Activity implements
         SpotifyPlayer.NotificationCallback, ConnectionStateCallback
 {
-    // TODO: Replace with your client ID//Done
     private static final String CLIENT_ID = "4712c40461f848f58a65ccd92acba7d2";
 
-    // TODO: Replace with your redirect URI//Done
     private static final String REDIRECT_URI = "yourcustomprotocol://callback";
 
     private static final int REQUEST_CODE = 1337;
