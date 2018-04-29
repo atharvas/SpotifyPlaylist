@@ -193,6 +193,7 @@ public class MainActivity extends Activity implements
             Toast.makeText(getApplicationContext(), "Please select a valid time.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "EXECTUTE Fn", Toast.LENGTH_SHORT).show();
+            PlaylistGeneration();
         }
     }
 
@@ -214,6 +215,12 @@ public class MainActivity extends Activity implements
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
+    }
+
+    private void PlaylistGeneration() {
+        Toast.makeText(getApplicationContext(), "PlayGen Called.", Toast.LENGTH_SHORT).show();
+
+        return;
     }
 }
 
