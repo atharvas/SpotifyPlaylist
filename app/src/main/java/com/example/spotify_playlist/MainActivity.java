@@ -35,7 +35,14 @@ public class MainActivity extends Activity implements
 
     private static final int REQUEST_CODE = 1337;
 
-    public static String ACCESS_TOKEN = "";
+    private static String ACCESS_TOKEN = "";
+
+    private int PLAYLIST_HRS;
+
+    private int PLAYLIST_MINS;
+
+
+
 
 
     @Override
@@ -68,17 +75,14 @@ public class MainActivity extends Activity implements
                 // Auth flow returned an error
                 case ERROR:
                     // Handle error response
-                    Toast.makeText(getApplicationContext(), "Trouble Connecting to Servers. Please try again later.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "oAuth failed!", Toast.LENGTH_SHORT).show();
                     Log.d("MainActivity", "Error.");
-
                     break;
 
                 // Most likely auth flow was cancelled
                 default:
                     Toast.makeText(getApplicationContext(), "oAuth failed!", Toast.LENGTH_SHORT).show();
                     Log.d("MainActivity", "oAuth failed");
-
-                    // Handle other cases
 
             }
         }
@@ -145,6 +149,7 @@ public class MainActivity extends Activity implements
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 putHourText.setText(String.valueOf(progress));
+                PLAYLIST_HRS = progress;
             }
 
             @Override
@@ -161,6 +166,8 @@ public class MainActivity extends Activity implements
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 putMinuteText.setText(String.valueOf(progress));
+                PLAYLIST_MINS = progress;
+
             }
 
             @Override
@@ -181,6 +188,11 @@ public class MainActivity extends Activity implements
         }
         if (ACCESS_TOKEN.equals("")) {
             Toast.makeText(getApplicationContext(), "You're not logged in.", Toast.LENGTH_SHORT).show();
+        }
+        if (PLAYLIST_MINS == 0 && PLAYLIST_HRS == 0) {
+            Toast.makeText(getApplicationContext(), "Please select a valid time.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "EXECTUTE Fn", Toast.LENGTH_SHORT).show();
         }
     }
 
