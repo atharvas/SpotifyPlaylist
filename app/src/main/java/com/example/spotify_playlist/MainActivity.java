@@ -220,12 +220,15 @@ public class MainActivity extends Activity implements
     private void PlaylistGeneration() {
         Toast.makeText(getApplicationContext(), "PlayGen Called.", Toast.LENGTH_SHORT).show();
         int time = convertToMilliseconds();
-        Toast.makeText(getApplicationContext(), "Converted" + time, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Converted to " + time, Toast.LENGTH_SHORT).show();
+        SpotifyApi songs = new SpotifyApi();
+        songs.setAccessToken(ACCESS_TOKEN);
+        songs.getService().getTopTracks();
 
         return;
     }
     public int convertToMilliseconds() {
-        return PLAYLIST_HRS * 60 * 1000 + PLAYLIST_MINS * 1000;
+        return PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000;
     }
 }
 
