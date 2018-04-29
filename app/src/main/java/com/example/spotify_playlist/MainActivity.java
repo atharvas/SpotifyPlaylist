@@ -130,7 +130,8 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onTemporaryError() {
-git a    }
+        Log.d("MainActivity", "Temporary error occurred");
+    }
 
     @Override
     public void onConnectionMessage(String message) {
