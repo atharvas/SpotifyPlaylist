@@ -23,7 +23,14 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import java.util.List;
+
 import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyCallback;
+import kaaes.spotify.webapi.android.SpotifyError;
+import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.SavedTrack;
+import retrofit.client.Response;
 
 //https://goo.gl/eST8wY - Link to github
 public class MainActivity extends Activity implements
@@ -188,8 +195,7 @@ public class MainActivity extends Activity implements
         }
         if (ACCESS_TOKEN.equals("")) {
             Toast.makeText(getApplicationContext(), "You're not logged in.", Toast.LENGTH_SHORT).show();
-        }
-        if (PLAYLIST_MINS == 0 && PLAYLIST_HRS == 0) {
+        } else if (PLAYLIST_MINS == 0 && PLAYLIST_HRS == 0) {
             Toast.makeText(getApplicationContext(), "Please select a valid time.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "EXECTUTE Fn", Toast.LENGTH_SHORT).show();
@@ -208,7 +214,7 @@ public class MainActivity extends Activity implements
 
         //oAuth Activity
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming"});
+        builder.setScopes(new String[]{"user-read-private", "streaming", "user-library-read"});
         builder.setShowDialog(true);
 
         AuthenticationRequest request = builder.build();
@@ -219,48 +225,23 @@ public class MainActivity extends Activity implements
 
     private void PlaylistGeneration() {
         Toast.makeText(getApplicationContext(), "PlayGen Called.", Toast.LENGTH_SHORT).show();
-        int time = convertToMilliseconds();
-        Toast.makeText(getApplicationContext(), "Converted to " + time, Toast.LENGTH_SHORT).show();
+        int time = PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000;
         SpotifyApi songs = new SpotifyApi();
         songs.setAccessToken(ACCESS_TOKEN);
-        songs.getService().getTopTracks();
+        songs.getService().getMySavedTracks(new SpotifyCallback<Pager<SavedTrack>>() {
+            @Override
+            public void success(Pager<SavedTrack> savedTrackPager, Response response) {
+                // handle successful response
+                Log.d("MainActivity", savedTrackPager.items.get(0).track.name);
+                Log.d("MainActivity", savedTrackPager.items.get(1).track.name);
 
-        return;
-    }
-    public int convertToMilliseconds() {
-        return PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000;
+            }
+
+            @Override
+            public void failure(SpotifyError error) {
+                // handle error
+                Log.d("MainActivity", error.toString());
+            }
+        });
     }
 }
-
-//package com.example.spotify_playlist;
-//
-//import android.app.Activity;
-//import android.content.Context;
-//import android.os.Bundle;
-//import android.os.Vibrator;
-//import android.util.AndroidException;
-//import android.view.Window;
-//import android.view.WindowManager;
-//import android.widget.SeekBar;
-//import android.widget.TextView;
-//import android.widget.Toast;
-//
-//public class MainActivity extends Activity {
-//
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        //Commands for Full-Screen
-//        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        //Launch Activity Main Layout
-//        this.setContentView(R.layout.activity_main);
-//        onUpdate();
-//
-//
-//
-//
-//    }
-//
-
-//}
