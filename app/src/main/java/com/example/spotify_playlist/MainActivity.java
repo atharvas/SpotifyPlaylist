@@ -23,13 +23,18 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
+import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.SavedTrack;
+import retrofit.Callback;
+import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 //https://goo.gl/eST8wY - Link to github
@@ -228,13 +233,18 @@ public class MainActivity extends Activity implements
         int time = PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000;
         SpotifyApi songs = new SpotifyApi();
         songs.setAccessToken(ACCESS_TOKEN);
-        songs.getService().getMySavedTracks(new SpotifyCallback<Pager<SavedTrack>>() {
+        String offset = "0";
+        String limit = "30";
+        Map<String, Object> options = new HashMap<>();
+        options.put(SpotifyService.OFFSET, offset);
+        options.put(SpotifyService.LIMIT, limit);
+
+        songs.getService().getMySavedTracks(options, new SpotifyCallback<Pager<SavedTrack>>() {
             @Override
             public void success(Pager<SavedTrack> savedTrackPager, Response response) {
                 // handle successful response
-                Log.d("MainActivity", savedTrackPager.items.get(0).track.name);
-                Log.d("MainActivity", savedTrackPager.items.get(1).track.name);
-
+                Log.d("MainActivity", String.valueOf(savedTrackPager.items.size()));
+                Parser(savedTrackPager.items);
             }
 
             @Override
@@ -243,5 +253,22 @@ public class MainActivity extends Activity implements
                 Log.d("MainActivity", error.toString());
             }
         });
+//        try {
+//            Pager<SavedTrack> mySavedTracks = songs.getService().getMySavedTracks();
+//            //                Log.d("MainActivity", String.valueOf(savedTrackPager.items.size()));
+//            //                Parser(savedTrackPager.items);
+//
+//        } catch (RetrofitError error) {
+//            SpotifyError spotifyError = SpotifyError.fromRetrofitError(error);
+//            Log.d("MainActivity", spotifyError.toString());
+//            // handle error
+//        }
+
+    }
+
+    public void Parser (List<SavedTrack> input) {
+        for (int i = 0; i < input.size(); i++) {
+            Log.d("MainActivity", input.get(i).track.name);
+        }
     }
 }
