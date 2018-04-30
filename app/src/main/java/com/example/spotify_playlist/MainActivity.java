@@ -15,19 +15,15 @@ import android.widget.Toast;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
+import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerEvent;
+import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
-import java.util.List;
-
 import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyCallback;
-import kaaes.spotify.webapi.android.SpotifyError;
-import kaaes.spotify.webapi.android.models.Pager;
-import kaaes.spotify.webapi.android.models.SavedTrack;
-import retrofit.client.Response;
 
 //https://goo.gl/eST8wY - Link to github
 public class MainActivity extends Activity implements
@@ -192,13 +188,16 @@ public class MainActivity extends Activity implements
         }
         if (ACCESS_TOKEN.equals("")) {
             Toast.makeText(getApplicationContext(), "You're not logged in.", Toast.LENGTH_SHORT).show();
-        } else if (PLAYLIST_MINS == 0 && PLAYLIST_HRS == 0) {
+        }
+        if (PLAYLIST_MINS == 0 && PLAYLIST_HRS == 0) {
             Toast.makeText(getApplicationContext(), "Please select a valid time.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getApplicationContext(), "EXECTUTE Fn", Toast.LENGTH_SHORT).show();
             PlaylistGeneration();
         }
     }
+
+
     public void executeUAuth(android.view.View playlistCreate) {
 
         Toast.makeText(getApplicationContext(), "oAuth pressed", Toast.LENGTH_SHORT).show();
@@ -209,7 +208,7 @@ public class MainActivity extends Activity implements
 
         //oAuth Activity
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming", "user-library-read"});
+        builder.setScopes(new String[]{"user-read-private", "streaming"});
         builder.setShowDialog(true);
 
         AuthenticationRequest request = builder.build();
@@ -217,32 +216,51 @@ public class MainActivity extends Activity implements
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
     }
+
     private void PlaylistGeneration() {
         Toast.makeText(getApplicationContext(), "PlayGen Called.", Toast.LENGTH_SHORT).show();
-        int PlaylistTime = PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000;
-        //Make an API Request and set the Access Token.
+        int time = convertToMilliseconds();
+        Toast.makeText(getApplicationContext(), "Converted to " + time, Toast.LENGTH_SHORT).show();
         SpotifyApi songs = new SpotifyApi();
         songs.setAccessToken(ACCESS_TOKEN);
-        List<SavedTrack> mySavedTracks = songs.getService().getMySavedTracks().items;
-        for (int i = 0; i < mySavedTracks.size(); i++) {
-            System.out.println("TrackName: " + mySavedTracks.get(i).track.name + " Time:" + mySavedTracks.get(i).track.duration_ms);
-        }
+        songs.getService().getTopTracks();
 
-
-//        songs.getService().getMySavedTracks(new SpotifyCallback<Pager<SavedTrack>>() {
-//            @Override
-//            public void success(Pager<SavedTrack> savedTrackPager, Response response) {
-//                // handle successful response
-//                for (int i = 0; i < savedTrackPager.items.size(); i++) {
-//                    Log.d("Success", String.valueOf(savedTrackPager.items.get(i).track.name));
-//                }
-//            }
-//            @Override
-//            public void failure(SpotifyError error) {
-//                // handle error
-//                Log.d("MainActivity", "Error!");
-//
-//            }
-//        });
+        return;
+    }
+    public int convertToMilliseconds() {
+        return PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000;
     }
 }
+
+//package com.example.spotify_playlist;
+//
+//import android.app.Activity;
+//import android.content.Context;
+//import android.os.Bundle;
+//import android.os.Vibrator;
+//import android.util.AndroidException;
+//import android.view.Window;
+//import android.view.WindowManager;
+//import android.widget.SeekBar;
+//import android.widget.TextView;
+//import android.widget.Toast;
+//
+//public class MainActivity extends Activity {
+//
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        //Commands for Full-Screen
+//        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        //Launch Activity Main Layout
+//        this.setContentView(R.layout.activity_main);
+//        onUpdate();
+//
+//
+//
+//
+//    }
+//
+
+//}
