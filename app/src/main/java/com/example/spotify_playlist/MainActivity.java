@@ -23,6 +23,7 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -267,8 +268,20 @@ public class MainActivity extends Activity implements
     }
 
     public void Parser (List<SavedTrack> input) {
+        input.sort(new Comparator<SavedTrack>() {
+            @Override
+            public int compare(SavedTrack o1, SavedTrack o2) {
+                if (o1.track.duration_ms > o2.track.duration_ms) {
+                    return 1;
+                }
+                if (o1.track.duration_ms < o2.track.duration_ms) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
         for (int i = 0; i < input.size(); i++) {
-            Log.d("MainActivity", input.get(i).track.name);
+            Log.d("MainActivity", String.valueOf(input.get(i).track.duration_ms));
         }
     }
 }
