@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -23,9 +25,12 @@ import com.spotify.sdk.android.player.PlayerEvent;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
@@ -33,7 +38,17 @@ import kaaes.spotify.webapi.android.SpotifyCallback;
 import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
+import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistBase;
+import kaaes.spotify.webapi.android.models.PlaylistSimple;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
+import kaaes.spotify.webapi.android.models.Result;
 import kaaes.spotify.webapi.android.models.SavedTrack;
+import kaaes.spotify.webapi.android.models.Track;
+import kaaes.spotify.webapi.android.models.TrackToRemove;
+import kaaes.spotify.webapi.android.models.TracksToRemove;
+import kaaes.spotify.webapi.android.models.UserPrivate;
+import kaaes.spotify.webapi.android.models.UserPublic;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -54,7 +69,7 @@ public class MainActivity extends Activity implements
 
     private int PLAYLIST_MINS;
 
-
+    private int PLAYLIST_DURATION;
 
 
 
@@ -220,7 +235,7 @@ public class MainActivity extends Activity implements
 
         //oAuth Activity
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
-        builder.setScopes(new String[]{"user-read-private", "streaming", "user-library-read"});
+        builder.setScopes(new String[]{"user-read-private", "streaming", "user-library-read", "playlist-modify-public", "playlist-modify-private", "user-read-private"});
         builder.setShowDialog(true);
 
         AuthenticationRequest request = builder.build();
@@ -231,7 +246,7 @@ public class MainActivity extends Activity implements
 
     private void PlaylistGeneration() {
         Toast.makeText(getApplicationContext(), "PlayGen Called.", Toast.LENGTH_SHORT).show();
-        int time = PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000;
+        PLAYLIST_DURATION = (PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000);
         SpotifyApi songs = new SpotifyApi();
         songs.setAccessToken(ACCESS_TOKEN);
         String offset = "0";
@@ -249,9 +264,12 @@ public class MainActivity extends Activity implements
             }
 
             @Override
-            public void failure(SpotifyError error) {
+            public void failure(SpotifyError spotifyError) {
                 // handle error
-                Log.d("MainActivity", error.toString());
+                Log.d("MainActivity", spotifyError.toString());
+                Toast.makeText(getApplicationContext(), "getMySavedTracks" + spotifyError.toString(), Toast.LENGTH_SHORT).show();
+                return;
+
             }
         });
 //        try {
@@ -266,22 +284,126 @@ public class MainActivity extends Activity implements
 //        }
 
     }
-
-    public void Parser (List<SavedTrack> input) {
-        input.sort(new Comparator<SavedTrack>() {
+    public String USER_ID = "";
+    public void Parser (final List<SavedTrack> input) {
+        Toast.makeText(getApplicationContext(), "Parser Called.", Toast.LENGTH_SHORT).show();
+        final SpotifyApi spotify = new SpotifyApi();
+        spotify.setAccessToken(ACCESS_TOKEN);
+        spotify.getService().getMe(new Callback<UserPrivate>() {
             @Override
-            public int compare(SavedTrack o1, SavedTrack o2) {
-                if (o1.track.duration_ms > o2.track.duration_ms) {
-                    return 1;
-                }
-                if (o1.track.duration_ms < o2.track.duration_ms) {
-                    return -1;
-                }
-                return 0;
+            public void success(UserPrivate userPrivate, Response response) {
+                Parser2 (spotify, input);
+                USER_ID = userPrivate.id;
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("MainActivity", error.toString());
+                Toast.makeText(getApplicationContext(), "Parser" + error.toString(), Toast.LENGTH_SHORT).show();
+                return;
+
             }
         });
-        for (int i = 0; i < input.size(); i++) {
-            Log.d("MainActivity", String.valueOf(input.get(i).track.duration_ms));
-        }
     }
+    public String PLAYLIST_ID = "";
+
+    public void Parser2 (final SpotifyApi spotify, final List<SavedTrack> input) {
+        Toast.makeText(getApplicationContext(), "Parser2 Called", Toast.LENGTH_SHORT).show();
+        spotify.getService().getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
+            @Override
+            public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
+                Toast.makeText(getApplicationContext(), "getMyPlaylists: Success!", Toast.LENGTH_SHORT).show();
+
+                boolean doesExist = false;
+                for (int i = 0; i < playlistSimplePager.items.size(); i++) {
+                    if (playlistSimplePager.items.get(i).name.equals("Kairos Playlist")) {
+                        PLAYLIST_ID = playlistSimplePager.items.get(i).id;
+                        doesExist = true;
+                        break;
+                    }
+                }
+                Toast.makeText(getApplicationContext(), "Helper Finished.", Toast.LENGTH_SHORT).show();
+                if (!doesExist) {
+                    Map<String, Object> playlistOptions = new HashMap<>();
+                    playlistOptions.put("name", "Kairos Playlist");
+                    playlistOptions.put("public", true);
+                    playlistOptions.put("description", ("A Playlist made with Kairos for:" + PLAYLIST_HRS + " hours and" + PLAYLIST_MINS + "minutes."));
+                    spotify.getService().createPlaylist(USER_ID, playlistOptions, new SpotifyCallback<Playlist>() {
+                        @Override
+                        public void failure(SpotifyError spotifyError) {
+                            Log.d("MainActivity", spotifyError.toString());
+                            Toast.makeText(getApplicationContext(), "createPlaylist" + spotifyError.toString(), Toast.LENGTH_SHORT).show();
+                            return;
+
+                        }
+
+                        @Override
+                        public void success(Playlist playlist, Response response) {
+                            Log.d("MainActivity", "Success");
+                            Toast.makeText(getApplicationContext(), "createPlaylist: Success!", Toast.LENGTH_SHORT).show();
+                            PLAYLIST_ID = playlist.id;
+                            String returnString = "";
+                            for (int i = 0; i < input.size(); i++) {
+                                returnString += input.get(i).track.uri + ",";
+                            }
+
+                            spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
+                                @Override
+                                public void success(Result result, Response response) {
+                                    Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist: Success!", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                @Override
+                                public void failure(RetrofitError error) {
+                                    Log.d("MainActivity", error.toString());
+                                    Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist" + error.toString(), Toast.LENGTH_SHORT).show();
+                                    return;
+
+                                }
+                            });
+                            return;
+                        }
+                    });
+                } else {
+                    Toast.makeText(getApplicationContext(), "AlreadyMadePlaylist.", Toast.LENGTH_SHORT).show();
+                    String returnString = "";
+                    for (int i = 0; i < input.size(); i++) {
+                        returnString += input.get(i).track.uri + ",";
+                    }
+
+                    spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
+                        @Override
+                        public void success(Result result, Response response) {
+                            Toast.makeText(getApplicationContext(), "AlreadyMadePlaylist: Success!" + result.toString(), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        @Override
+                        public void failure(RetrofitError error) {
+                            Log.d("MainActivity", error.toString());
+                            Toast.makeText(getApplicationContext(), "AlreadyMadePlaylist" + error.toString(), Toast.LENGTH_SHORT).show();
+                            return;
+
+                        }
+                    });
+                }
+
+                return;
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("MainActivity", error.toString());
+                Toast.makeText(getApplicationContext(), "getMyPlaylists" + error.toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+        });
+
+
+
+    }
+
+
 }
