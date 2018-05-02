@@ -427,13 +427,13 @@ public class MainActivity extends Activity implements
                 i = 0;
             }
         } while (PlaylistLength >= 0);
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://open.spotify.com/user/2235j3zma2v245ktov7pxlaxa/playlist/4ejLIbIuxrlsz2h6KWsrLd"));
+        startActivity(browserIntent);
 
         spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
             @Override
             public void success(Result result, Response response) {
                 Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist: Success!" + result.toString(), Toast.LENGTH_SHORT).show();
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://open.spotify.com/user/2235j3zma2v245ktov7pxlaxa/playlist/4ejLIbIuxrlsz2h6KWsrLd"));
-                startActivity(browserIntent);
                 return;
             }
 
