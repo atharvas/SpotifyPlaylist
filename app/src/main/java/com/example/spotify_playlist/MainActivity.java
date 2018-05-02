@@ -427,13 +427,20 @@ public class MainActivity extends Activity implements
                 i = 0;
             }
         } while (PlaylistLength >= 0);
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://open.spotify.com/user/" + USER_ID + "/playlist/" + PLAYLIST_ID));
-        startActivity(browserIntent);
+
 
         spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
             @Override
             public void success(Result result, Response response) {
                 Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist: Success!" + result.toString(), Toast.LENGTH_SHORT).show();
+
+                Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.spotify.mobile.android.ui");
+                if (launchIntent != null) {
+                    startActivity(launchIntent);//null pointer check in case package name was not found
+                } else {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://open.spotify.com/user/" + USER_ID + "/playlist/" + PLAYLIST_ID));
+                    startActivity(browserIntent);
+                }
                 return;
             }
 
