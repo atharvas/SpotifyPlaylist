@@ -427,7 +427,7 @@ public class MainActivity extends Activity implements
                 i = 0;
             }
         } while (PlaylistLength >= 0);
-        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://open.spotify.com/user/2235j3zma2v245ktov7pxlaxa/playlist/4ejLIbIuxrlsz2h6KWsrLd"));
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://open.spotify.com/user/" + USER_ID + "/playlist/" + PLAYLIST_ID));
         startActivity(browserIntent);
 
         spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
