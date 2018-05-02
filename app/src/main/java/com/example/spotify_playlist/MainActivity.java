@@ -1,5 +1,6 @@
 package com.example.spotify_playlist;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -32,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Random;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyCallback;
@@ -42,6 +44,7 @@ import kaaes.spotify.webapi.android.models.Playlist;
 import kaaes.spotify.webapi.android.models.PlaylistBase;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
 import kaaes.spotify.webapi.android.models.PlaylistTrack;
+import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.Result;
 import kaaes.spotify.webapi.android.models.SavedTrack;
 import kaaes.spotify.webapi.android.models.Track;
@@ -69,7 +72,7 @@ public class MainActivity extends Activity implements
 
     private int PLAYLIST_MINS;
 
-    private int PLAYLIST_DURATION;
+    private long PLAYLIST_DURATION;
 
 
 
@@ -343,51 +346,13 @@ public class MainActivity extends Activity implements
                             Log.d("MainActivity", "Success");
                             Toast.makeText(getApplicationContext(), "createPlaylist: Success!", Toast.LENGTH_SHORT).show();
                             PLAYLIST_ID = playlist.id;
-                            String returnString = "";
-                            for (int i = 0; i < input.size(); i++) {
-                                returnString += input.get(i).track.uri + ",";
-                            }
-
-                            spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
-                                @Override
-                                public void success(Result result, Response response) {
-                                    Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist: Success!", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-
-                                @Override
-                                public void failure(RetrofitError error) {
-                                    Log.d("MainActivity", error.toString());
-                                    Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist" + error.toString(), Toast.LENGTH_SHORT).show();
-                                    return;
-
-                                }
-                            });
+                            RecList(spotify, input);
                             return;
                         }
                     });
                 } else {
                     Toast.makeText(getApplicationContext(), "AlreadyMadePlaylist.", Toast.LENGTH_SHORT).show();
-                    String returnString = "";
-                    for (int i = 0; i < input.size(); i++) {
-                        returnString += input.get(i).track.uri + ",";
-                    }
-
-                    spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
-                        @Override
-                        public void success(Result result, Response response) {
-                            Toast.makeText(getApplicationContext(), "AlreadyMadePlaylist: Success!" + result.toString(), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        @Override
-                        public void failure(RetrofitError error) {
-                            Log.d("MainActivity", error.toString());
-                            Toast.makeText(getApplicationContext(), "AlreadyMadePlaylist" + error.toString(), Toast.LENGTH_SHORT).show();
-                            return;
-
-                        }
-                    });
+                    RecList(spotify, input);
                 }
 
                 return;
@@ -400,10 +365,83 @@ public class MainActivity extends Activity implements
                 return;
             }
         });
-
-
-
     }
 
+    public void RecList (final SpotifyApi spotify, List<SavedTrack> input) {
+        Random r = new Random();
+        String inputStringTracks = input.get(r.nextInt(input.size())).track.id;
+        String inputStringArtist = input.get(r.nextInt(input.size())).track.artists.get(0).id;
+        Log.d("MainActivity", "Track" + inputStringTracks);
+        Log.d("MainActivity", "Artist" + inputStringArtist);
+
+
+        Map<String, Object> options = new HashMap<>();
+
+        options.put("limit", 10);
+        options.put("seed_tracks", inputStringTracks);
+        options.put("seed_artists", inputStringArtist);
+
+
+        spotify.getService().getRecommendations(options, new Callback<Recommendations>() {
+            @Override
+            public void success(Recommendations recommendations, Response response) {
+                Toast.makeText(getApplicationContext(), "getRecommendations: Success!", Toast.LENGTH_SHORT).show();
+                Log.d("MainActivity", String.valueOf(recommendations.tracks.size()));
+                addToPlaylist(recommendations, spotify);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("MainActivity", error.toString());
+                Toast.makeText(getApplicationContext(), "getRecommendations" + error.toString() , Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        });
+
+    }
+    @TargetApi(24)
+    public void addToPlaylist (Recommendations input, SpotifyApi spotify) {
+        Toast.makeText(getApplicationContext(), "addToPlaylist Called", Toast.LENGTH_SHORT).show();
+        input.tracks.sort(new Comparator<Track>() {
+            @Override
+            public int compare(Track o1, Track o2) {
+                if (o1.duration_ms > o2.duration_ms) {
+                    return 1;
+                }
+                if (o1.duration_ms < o2.duration_ms) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        String returnString = "";
+        long PlaylistLength = PLAYLIST_DURATION;
+        int i = 0;
+        do {
+            returnString += input.tracks.get(i).uri + ",";
+            PlaylistLength = PlaylistLength - input.tracks.get(i).duration_ms;
+            i++;
+            if (i == input.tracks.size() - 1) {
+                i = 0;
+            }
+        } while (PlaylistLength >= 0);
+
+        spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
+            @Override
+            public void success(Result result, Response response) {
+                Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist: Success!" + result.toString(), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("MainActivity", error.toString());
+                Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist" + error.toString(), Toast.LENGTH_SHORT).show();
+                return;
+
+            }
+        });
+    }
 
 }
