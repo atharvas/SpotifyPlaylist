@@ -322,7 +322,6 @@ public class MainActivity extends Activity implements
                     Map<String, Object> playlistOptions = new HashMap<>();
                     playlistOptions.put("name", "Kairos Playlist");
                     playlistOptions.put("public", true);
-                    playlistOptions.put("description", ("A Playlist made with Kairos for: " + PLAYLIST_HRS + " hours and" + PLAYLIST_MINS + " minutes."));
                     spotify.getService().createPlaylist(USER_ID, playlistOptions, new SpotifyCallback<Playlist>() {
                         @Override
                         public void failure(SpotifyError spotifyError) {
