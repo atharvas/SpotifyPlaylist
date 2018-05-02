@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,20 +17,14 @@ import android.widget.Toast;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-import com.spotify.sdk.android.player.Config;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Error;
-import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerEvent;
-import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.SpotifyPlayer;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Random;
 
@@ -42,25 +34,19 @@ import kaaes.spotify.webapi.android.SpotifyError;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Pager;
 import kaaes.spotify.webapi.android.models.Playlist;
-import kaaes.spotify.webapi.android.models.PlaylistBase;
 import kaaes.spotify.webapi.android.models.PlaylistSimple;
-import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Recommendations;
 import kaaes.spotify.webapi.android.models.Result;
 import kaaes.spotify.webapi.android.models.SavedTrack;
 import kaaes.spotify.webapi.android.models.Track;
-import kaaes.spotify.webapi.android.models.TrackToRemove;
-import kaaes.spotify.webapi.android.models.TracksToRemove;
 import kaaes.spotify.webapi.android.models.UserPrivate;
-import kaaes.spotify.webapi.android.models.UserPublic;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 //https://goo.gl/eST8wY - Link to github
 public class MainActivity extends Activity implements
-        SpotifyPlayer.NotificationCallback, ConnectionStateCallback
-{
+        SpotifyPlayer.NotificationCallback, ConnectionStateCallback {
     private static final String CLIENT_ID = "4712c40461f848f58a65ccd92acba7d2";
 
     private static final String REDIRECT_URI = "yourcustomprotocol://callback";
@@ -74,7 +60,6 @@ public class MainActivity extends Activity implements
     private int PLAYLIST_MINS;
 
     private long PLAYLIST_DURATION;
-
 
 
     @Override
@@ -169,11 +154,12 @@ public class MainActivity extends Activity implements
     public void onConnectionMessage(String message) {
         Log.d("MainActivity", "Received connection message: " + message);
     }
+
     private void onUpdate() {
-        SeekBar getHourSeeker = (SeekBar)findViewById(R.id.hourBar);
-        SeekBar getMinuteSeeker = (SeekBar)findViewById(R.id.minuteBar);
-        final TextView putHourText = (TextView)findViewById(R.id.dynamic_playlistHRS);
-        final TextView putMinuteText = (TextView)findViewById(R.id.dynamic_playlistMIN);
+        SeekBar getHourSeeker = (SeekBar) findViewById(R.id.hourBar);
+        SeekBar getMinuteSeeker = (SeekBar) findViewById(R.id.minuteBar);
+        final TextView putHourText = (TextView) findViewById(R.id.dynamic_playlistHRS);
+        final TextView putMinuteText = (TextView) findViewById(R.id.dynamic_playlistMIN);
         putHourText.setText(String.valueOf(0));
         putMinuteText.setText(String.valueOf(0));
 
@@ -212,6 +198,7 @@ public class MainActivity extends Activity implements
             }
         });
     }
+
     public void executeProgram(android.view.View playlistCreate) {
         Toast.makeText(getApplicationContext(), "playlistCreate pressed", Toast.LENGTH_SHORT).show();
         Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -288,15 +275,17 @@ public class MainActivity extends Activity implements
 //        }
 
     }
+
     public String USER_ID = "";
-    public void Parser (final List<SavedTrack> input) {
+
+    public void Parser(final List<SavedTrack> input) {
         Toast.makeText(getApplicationContext(), "Parser Called.", Toast.LENGTH_SHORT).show();
         final SpotifyApi spotify = new SpotifyApi();
         spotify.setAccessToken(ACCESS_TOKEN);
         spotify.getService().getMe(new Callback<UserPrivate>() {
             @Override
             public void success(UserPrivate userPrivate, Response response) {
-                Parser2 (spotify, input);
+                Parser2(spotify, input);
                 USER_ID = userPrivate.id;
 
             }
@@ -310,9 +299,10 @@ public class MainActivity extends Activity implements
             }
         });
     }
+
     public String PLAYLIST_ID = "";
 
-    public void Parser2 (final SpotifyApi spotify, final List<SavedTrack> input) {
+    public void Parser2(final SpotifyApi spotify, final List<SavedTrack> input) {
         Toast.makeText(getApplicationContext(), "Parser2 Called", Toast.LENGTH_SHORT).show();
         spotify.getService().getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
             @Override
@@ -332,7 +322,7 @@ public class MainActivity extends Activity implements
                     Map<String, Object> playlistOptions = new HashMap<>();
                     playlistOptions.put("name", "Kairos Playlist");
                     playlistOptions.put("public", true);
-                    playlistOptions.put("description", ("A Playlist made with Kairos for:" + PLAYLIST_HRS + " hours and" + PLAYLIST_MINS + "minutes."));
+                    playlistOptions.put("description", ("A Playlist made with Kairos for: " + PLAYLIST_HRS + " hours and" + PLAYLIST_MINS + " minutes."));
                     spotify.getService().createPlaylist(USER_ID, playlistOptions, new SpotifyCallback<Playlist>() {
                         @Override
                         public void failure(SpotifyError spotifyError) {
@@ -368,7 +358,7 @@ public class MainActivity extends Activity implements
         });
     }
 
-    public void RecList (final SpotifyApi spotify, List<SavedTrack> input) {
+    public void RecList(final SpotifyApi spotify, List<SavedTrack> input) {
         Random r = new Random();
         String inputStringTracks = input.get(r.nextInt(input.size())).track.id;
         String inputStringArtist = input.get(r.nextInt(input.size())).track.artists.get(0).id;
@@ -394,15 +384,16 @@ public class MainActivity extends Activity implements
             @Override
             public void failure(RetrofitError error) {
                 Log.d("MainActivity", error.toString());
-                Toast.makeText(getApplicationContext(), "getRecommendations" + error.toString() , Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "getRecommendations" + error.toString(), Toast.LENGTH_SHORT).show();
                 return;
 
             }
         });
 
     }
+
     @TargetApi(24)
-    public void addToPlaylist (Recommendations input, SpotifyApi spotify) {
+    public void addToPlaylist(Recommendations input, SpotifyApi spotify) {
         Toast.makeText(getApplicationContext(), "addToPlaylist Called", Toast.LENGTH_SHORT).show();
         input.tracks.sort(new Comparator<Track>() {
             @Override
