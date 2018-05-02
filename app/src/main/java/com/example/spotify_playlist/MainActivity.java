@@ -210,7 +210,7 @@ public class MainActivity extends Activity implements
         } else if (PLAYLIST_MINS == 0 && PLAYLIST_HRS == 0) {
             Toast.makeText(getApplicationContext(), "Please select a valid time.", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(getApplicationContext(), "EXECTUTE Fn", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "EXECTUTE Fn", Toast.LENGTH_SHORT).show();
             PlaylistGeneration();
         }
     }
@@ -218,7 +218,7 @@ public class MainActivity extends Activity implements
 
     public void executeUAuth(android.view.View playlistCreate) {
 
-        Toast.makeText(getApplicationContext(), "oAuth pressed", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "oAuth pressed", Toast.LENGTH_SHORT).show();
         Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         if (vibe != null) {
             vibe.vibrate(40);
@@ -236,7 +236,7 @@ public class MainActivity extends Activity implements
     }
 
     private void PlaylistGeneration() {
-        Toast.makeText(getApplicationContext(), "PlayGen Called.", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "PlayGen Called.", Toast.LENGTH_SHORT).show();
         PLAYLIST_DURATION = (PLAYLIST_HRS * 60 * 60 * 1000 + PLAYLIST_MINS * 60 * 1000);
         SpotifyApi songs = new SpotifyApi();
         songs.setAccessToken(ACCESS_TOKEN);
@@ -279,7 +279,7 @@ public class MainActivity extends Activity implements
     public String USER_ID = "";
 
     public void Parser(final List<SavedTrack> input) {
-        Toast.makeText(getApplicationContext(), "Parser Called.", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "Parser Called.", Toast.LENGTH_SHORT).show();
         final SpotifyApi spotify = new SpotifyApi();
         spotify.setAccessToken(ACCESS_TOKEN);
         spotify.getService().getMe(new Callback<UserPrivate>() {
@@ -303,11 +303,11 @@ public class MainActivity extends Activity implements
     public String PLAYLIST_ID = "";
 
     public void Parser2(final SpotifyApi spotify, final List<SavedTrack> input) {
-        Toast.makeText(getApplicationContext(), "Parser2 Called", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "Parser2 Called", Toast.LENGTH_SHORT).show();
         spotify.getService().getMyPlaylists(new Callback<Pager<PlaylistSimple>>() {
             @Override
             public void success(Pager<PlaylistSimple> playlistSimplePager, Response response) {
-                Toast.makeText(getApplicationContext(), "getMyPlaylists: Success!", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "getMyPlaylists: Success!", Toast.LENGTH_SHORT).show();
 
                 boolean doesExist = false;
                 for (int i = 0; i < playlistSimplePager.items.size(); i++) {
@@ -317,7 +317,7 @@ public class MainActivity extends Activity implements
                         break;
                     }
                 }
-                Toast.makeText(getApplicationContext(), "Helper Finished.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "Helper Finished.", Toast.LENGTH_SHORT).show();
                 if (!doesExist) {
                     Map<String, Object> playlistOptions = new HashMap<>();
                     playlistOptions.put("name", "Kairos Playlist");
@@ -335,14 +335,14 @@ public class MainActivity extends Activity implements
                         @Override
                         public void success(Playlist playlist, Response response) {
                             Log.d("MainActivity", "Success");
-                            Toast.makeText(getApplicationContext(), "createPlaylist: Success!", Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getApplicationContext(), "createPlaylist: Success!", Toast.LENGTH_SHORT).show();
                             PLAYLIST_ID = playlist.id;
                             RecList(spotify, input);
                             return;
                         }
                     });
                 } else {
-                    Toast.makeText(getApplicationContext(), "AlreadyMadePlaylist.", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getApplicationContext(), "AlreadyMadePlaylist.", Toast.LENGTH_SHORT).show();
                     RecList(spotify, input);
                 }
 
@@ -376,7 +376,7 @@ public class MainActivity extends Activity implements
         spotify.getService().getRecommendations(options, new Callback<Recommendations>() {
             @Override
             public void success(Recommendations recommendations, Response response) {
-                Toast.makeText(getApplicationContext(), "getRecommendations: Success!", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "getRecommendations: Success!", Toast.LENGTH_SHORT).show();
                 Log.d("MainActivity", String.valueOf(recommendations.tracks.size()));
                 addToPlaylist(recommendations, spotify);
             }
@@ -394,7 +394,7 @@ public class MainActivity extends Activity implements
 
     @TargetApi(24)
     public void addToPlaylist(Recommendations input, SpotifyApi spotify) {
-        Toast.makeText(getApplicationContext(), "addToPlaylist Called", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getApplicationContext(), "addToPlaylist Called", Toast.LENGTH_SHORT).show();
         input.tracks.sort(new Comparator<Track>() {
             @Override
             public int compare(Track o1, Track o2) {
@@ -423,7 +423,7 @@ public class MainActivity extends Activity implements
         spotify.getService().replaceTracksInPlaylist(USER_ID, PLAYLIST_ID, returnString, new Object(), new Callback<Result>() {
             @Override
             public void success(Result result, Response response) {
-                Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist: Success!" + result.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Success!", Toast.LENGTH_SHORT).show();
 
                 Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.spotify.mobile.android.ui");
                 if (launchIntent != null) {
