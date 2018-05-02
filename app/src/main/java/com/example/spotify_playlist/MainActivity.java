@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -377,7 +378,7 @@ public class MainActivity extends Activity implements
 
         Map<String, Object> options = new HashMap<>();
 
-        options.put("limit", 10);
+        options.put("limit", 100);
         options.put("seed_tracks", inputStringTracks);
         options.put("seed_artists", inputStringArtist);
 
@@ -431,6 +432,8 @@ public class MainActivity extends Activity implements
             @Override
             public void success(Result result, Response response) {
                 Toast.makeText(getApplicationContext(), "replaceTracksInPlaylist: Success!" + result.toString(), Toast.LENGTH_SHORT).show();
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://open.spotify.com/user/2235j3zma2v245ktov7pxlaxa/playlist/4ejLIbIuxrlsz2h6KWsrLd"));
+                startActivity(browserIntent);
                 return;
             }
 
