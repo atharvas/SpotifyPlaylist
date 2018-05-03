@@ -352,6 +352,8 @@ public class MainActivity extends Activity implements
             public void failure(RetrofitError error) {
                 Log.d("MainActivity", error.toString());
                 Toast.makeText(getApplicationContext(), "getMyPlaylists" + error.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "You may not have enough saved tracks. Please add atleast 2 saved tracks." + error.toString(), Toast.LENGTH_SHORT).show();
+
                 return;
             }
         });
@@ -359,8 +361,13 @@ public class MainActivity extends Activity implements
 
     public void RecList(final SpotifyApi spotify, List<SavedTrack> input) {
         Random r = new Random();
-        String inputStringTracks = input.get(r.nextInt(input.size())).track.id;
-        String inputStringArtist = input.get(r.nextInt(input.size())).track.artists.get(0).id;
+        int randTrack = r.nextInt(input.size() - 1);
+        String inputStringTracks = input.get(randTrack).track.id + ",";
+        inputStringTracks += input.get(randTrack + 1).track.id;
+
+        String inputStringArtist = input.get(randTrack).track.artists.get(0).id + ",";
+        inputStringArtist += input.get(randTrack + 1).track.artists.get(0).id;
+
         Log.d("MainActivity", "Track" + inputStringTracks);
         Log.d("MainActivity", "Artist" + inputStringArtist);
 
